@@ -18,7 +18,6 @@ public class UsuarioService {
     private final UsuarioConveter usuarioConveter;
     private final PasswordEncoder passwordEncoder;
 
-    @Bean
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
         emialExiste(usuarioDTO.getEmail());
         usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
