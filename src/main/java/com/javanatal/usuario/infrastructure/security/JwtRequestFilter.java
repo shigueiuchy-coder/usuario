@@ -1,4 +1,4 @@
-package com.javanauta.aprendendospring.infrastructore.security;
+package com.javanatal.usuario.infrastructure.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

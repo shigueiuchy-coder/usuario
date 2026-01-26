@@ -1,5 +1,6 @@
-package com.javanauta.aprendendospring.infrastructore.security;
+package com.javanatal.usuario.infrastructure.security;
 
+import com.javanatal.usuario.infrastructure.security.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

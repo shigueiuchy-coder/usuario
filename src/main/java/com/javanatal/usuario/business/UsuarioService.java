@@ -3,8 +3,11 @@ package com.javanatal.usuario.business;
 import com.javanatal.usuario.business.conveter.UsuarioConveter;
 import com.javanatal.usuario.business.dto.UsuarioDTO;
 import com.javanatal.usuario.infrastructure.entity.Usuario;
+import com.javanatal.usuario.infrastructure.exception.ConflictExcption;
 import com.javanatal.usuario.infrastructure.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,12 +16,32 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConveter usuarioConveter;
+    private final PasswordEncoder passwordEncoder;
 
+    @Bean
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
-        Usuario usuario = usuarioConveter.paraUsusario(UsuarioDTO);
+        emialExiste(usuarioDTO.getEmail());
+        usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
+        Usuario usuario = usuarioConveter.paraUsusario(usuarioDTO);
         return usuarioConveter.paraUsusarioDTO(
-                usuarioRepository.save(usuario);
+                usuarioRepository.save(usuario)
                 );
 
+    }
+
+    public void emialExiste(String email){
+        try{
+            boolean existe =  verificaEmailExistente(email);
+            if(existe){
+                throw new ConflictExcption("Email já cadastrado" + email);
+            }
+
+        }catch (ConflictExcption e){
+            throw new ConflictExcption("Email já cadastrado" + e.getCause());
+        }
+    }
+
+    public boolean verificaEmailExistente(String email){
+        return usuarioRepository.existsByEmail(email);
     }
 }
