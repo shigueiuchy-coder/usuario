@@ -4,9 +4,9 @@ import com.javanatal.usuario.business.conveter.UsuarioConveter;
 import com.javanatal.usuario.business.dto.UsuarioDTO;
 import com.javanatal.usuario.infrastructure.entity.Usuario;
 import com.javanatal.usuario.infrastructure.exception.ConflictExcption;
+import com.javanatal.usuario.infrastructure.exception.ResorceNotFoundException;
 import com.javanatal.usuario.infrastructure.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class UsuarioService {
     private final UsuarioConveter usuarioConveter;
     private final PasswordEncoder passwordEncoder;
 
-    @Bean
+
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
         emialExiste(usuarioDTO.getEmail());
         usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
@@ -40,8 +40,14 @@ public class UsuarioService {
             throw new ConflictExcption("Email já cadastrado" + e.getCause());
         }
     }
-
-    public boolean verificaEmailExistente(String email){
-        return usuarioRepository.existsByEmail(email);
-    }
+        public boolean verificaEmailExistente (String email){
+            return usuarioRepository.existsByEmail(email);
+        }
+        public Usuario buscarUsuarioPorEmail(String email){
+            return usuarioRepository.findByEmail(email).orElseThrow(
+                    () -> new ResorceNotFoundException("Email não encontrado" + email ));
+        }
+        public void deletaUsuarioPorEmail(String email){
+            usuarioRepository.deleteByEmail(email);
+        }
 }
