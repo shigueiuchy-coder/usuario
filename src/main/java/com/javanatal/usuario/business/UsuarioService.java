@@ -1,10 +1,16 @@
 package com.javanatal.usuario.business;
 
 import com.javanatal.usuario.business.conveter.UsuarioConveter;
+import com.javanatal.usuario.business.dto.EnderecoDTO;
+import com.javanatal.usuario.business.dto.TelefoneDTO;
 import com.javanatal.usuario.business.dto.UsuarioDTO;
+import com.javanatal.usuario.infrastructure.entity.Endereco;
+import com.javanatal.usuario.infrastructure.entity.Telefone;
 import com.javanatal.usuario.infrastructure.entity.Usuario;
 import com.javanatal.usuario.infrastructure.exception.ConflictExcption;
 import com.javanatal.usuario.infrastructure.exception.ResorceNotFoundException;
+import com.javanatal.usuario.infrastructure.repository.EnderecoRepository;
+import com.javanatal.usuario.infrastructure.repository.TelefoneRepository;
 import com.javanatal.usuario.infrastructure.repository.UsuarioRepository;
 import com.javanatal.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +25,8 @@ public class UsuarioService {
     private final UsuarioConveter usuarioConveter;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final EnderecoRepository enderecoRepository;
+    private final TelefoneRepository telefoneRepository;
 
 
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO){
@@ -45,9 +53,18 @@ public class UsuarioService {
         public boolean verificaEmailExistente (String email){
             return usuarioRepository.existsByEmail(email);
         }
-        public Usuario buscarUsuarioPorEmail(String email){
-            return usuarioRepository.findByEmail(email).orElseThrow(
-                    () -> new ResorceNotFoundException("Email não encontrado" + email ));
+
+        public UsuarioDTO buscarUsuarioPorEmail(String email){
+            try {
+                return usuarioConveter.paraUsusarioDTO(
+                        usuarioRepository.findByEmail(email)
+                                .orElseThrow(
+                        () -> new ResorceNotFoundException("Email não encontrado" + email)
+                                )
+                );
+            }catch (ResorceNotFoundException e){
+                    throw new ResorceNotFoundException("Email não encontrado " + email);
+            }
         }
 
         public void deletaUsuarioPorEmail(String email){
@@ -72,4 +89,26 @@ public class UsuarioService {
                 return usuarioConveter.paraUsusarioDTO(usuarioRepository.save(usuario));
 
             }
+
+            public EnderecoDTO atualizaEndereco(Long idEndereco, EnderecoDTO enderecoDTO){
+
+                Endereco entity = enderecoRepository.findById(idEndereco).orElseThrow(() ->
+                        new ResorceNotFoundException("Id não encontrado" + idEndereco));
+
+                Endereco endereco = usuarioConveter.updateEndereco(enderecoDTO, entity);
+
+                return usuarioConveter.paraEnderecoDTO(enderecoRepository.save(endereco));
+    }
+
+    public TelefoneDTO atualizaTelefone(Long idTelefone, TelefoneDTO dto){
+
+        Telefone entity = telefoneRepository.findById(idTelefone).orElseThrow(() ->
+                new ResorceNotFoundException("Id não encontrado" + idTelefone));
+
+
+        Telefone telefone = usuarioConveter.updateTelefone(dto, entity);
+
+        return usuarioConveter.paraTelefoneDTO(telefoneRepository.save(telefone));
+
+    }
 }
