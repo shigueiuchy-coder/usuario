@@ -128,4 +128,23 @@ public class UsuarioConveter {
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
                 .build();
     }
+
+    public Endereco paraEnderecoEntity(EnderecoDTO dto, Long idUsuario ){
+        return Endereco.builder()
+                .rua(dto.getRua())
+                .cidade(dto.getCidade())
+                .cep(dto.getCep())
+                .complemento(dto.getComplemento())
+                .numero(dto.getNumero())
+                .estado(dto.getEstado())
+                .build();
+    }
+
+    public Telefone paraTelefoneEntity(TelefoneDTO sto, Long idUsuario){
+        return Telefone.builder()
+                .numero(sto.getNumero())
+                .ddd(sto.getDdd())
+                .usuario_id(idUsuario)
+                .build();
+    }
 }
